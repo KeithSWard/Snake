@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+
+<HTML>
+	<div id="ScoreDiv">Score: 0</div>
+<canvas id="canvas1" width="200" height="200" style="border:1px solid #000000;" ></canvas>
+
+
+<script type="text/javascript">
+//This is a very basic CANVAS Game  of Snake
+
+//Global Variables
+
+var c=document.getElementById("canvas1");
+var head =
+{
+	x:99,
+	y:99,
+	direction:'n',
+	headSize:6,
+	color:""
+
+};
+var tail =function(x, y)
+{
+	this.x=x;
+	this.y=y;
+	
+};
+//Create apple but dont show yet.
+var apple=
+{
+	x: -10,
+	y: -10
+};
+var snake = [head, tail];
+var  myVar;
+var score=-1;
+
+
+document.onkeydown=detectKey;
+
+
+function reDraw(ev) {
+	var ctx=c.getContext("2d");
+	ctx.fillStyle="white";
+	ctx.fillRect(0,0,c.width,c.height);
+	ctx.strokeStyle="black";
+    ctx.strokeRect(0, 0, c.width, c.height);
+	ctx.stroke();
+
+	//draw snake head
+	ctx.strokeRect(snake[0].x,snake[0].y,head.headSize,head.headSize);
+
+	ctx.strokeStyle="red";
+	ctx.strokeRect(apple.x,apple.y,head.headSize,head.headSize);
+	//draw snakes
+	for (var i=1;i<snake.length ;  i++) {
+		ctx.strokeStyle="darkgreen";
+		ctx.strokeRect(snake[i].x,snake[i].y,head.headSize,head.headSize);
+	};
+
+	checkColision();
+
+}
+function move (){
+snake[0].x=head.x;
+	snake[0].y= head.y;
+	if(head.direction=='n')
+		head.y=head.y-head.headSize;
+	if(head.direction=='s')
+		head.y=head.y+head.headSize;
+	if(head.direction=='w')
+		head.x=head.x-head.headSize;
+	if(head.direction=='e')
+		head.x=head.x+head.headSize;
+	
+	for (var i = snake.length-1; i >= 1; i--) {
+		
+		snake[i].x=snake[i-1].x;
+		snake[i].y= snake[i-1].y;
+	};
+	
+	reDraw();
+}
+
+function detectKey(e)
+{
+	//distinguish between IE's explicit event object (window.event) and Firefox's implicit.
+	var evtobj=window.event? event : e 
+	var event = window.event ? window.event : e;
+	clearInterval(myVar);
+    //Gameplay Starts on first keypress
+   	myVar=setInterval(move, 60);
+    
+    //left
+    if (event.keyCode==37) {
+    	if(head.direction!='e')
+         head.direction='w';
+    }
+    //right
+    if (event.keyCode==39) {
+    	if(head.direction!='w')
+         head.direction='e';
+         
+    }
+    //up
+    if (event.keyCode==38) {
+        if(head.direction!='s')
+         head.direction='n';
+    }
+    //down
+    if (event.keyCode==40) {
+         if(head.direction!='n')
+         head.direction='s';
+    }
+    
+}
+function checkColision()
+{
+	//Check for end of game Border
+	if(head.x>=c.width-head.headSize || head.x<0)
+		endGame();
+	if(head.y>=c.height-head.headSize  || head.y<0)
+		endGame();
+	
+	//Check for end of game Snake
+	for (var i = snake.length - 1; i >= 3; i--) {
+		if(head.x==snake[i].x &&head.y==snake[i].y)
+			endGame();
+	};
+	
+	//Check for Apple
+	if(head.x<=apple.x+head.headSize &&head.x>=apple.x-head.headSize && head.y<=apple.y+head.headSize &&head.y>=apple.y-head.headSize)
+	{
+		addApple();
+	}
+}
+
+function endGame(){
+	alert("Game Over.  Your score is "+score);
+	resetGame();
+}
+
+function resetGame()
+{
+	clearInterval(myVar);
+	head.x=(c.width-1)/2;
+	head.y=(c.height-1)/2;
+	snake.length=0
+	//Create snae with a few tails
+	snake = [head, new tail(), new tail(), new tail()];
+	score=-1;
+	addApple();
+
+}
+
+function addApple()
+{
+	growSnake();
+	score++;
+
+	var appleX = Math.floor(Math.random()*(200-head.headSize))+1;
+	var appleY = Math.floor(Math.random()*(200-head.headSize))+1;
+	apple.x=appleX;
+	apple.y=appleY;
+	document.getElementById("ScoreDiv").innerHTML="Score:"+score;
+}
+
+function growSnake()
+{
+	snake.push(new tail());
+}
+
+resetGame();
+</script>
+
+</HTML>
